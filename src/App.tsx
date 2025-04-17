@@ -1,35 +1,53 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+// src/App.tsx
+import { usePlayerName } from './hooks/usePlayerName';
+import GamePage from './pages/GamePage';
+import { useState } from 'react';
+
+import { TextField, Button, Box, Typography } from "@mui/material";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const { name, saveName } = usePlayerName();
+  const [input, setInput] = useState('');
 
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+  if (!name) {
+    return (
+      // <div>
+      //   <h2>Введи своє ім’я</h2>
+      //   <input value={input} onChange={e => setInput(e.target.value)} />
+      //   <button onClick={() => input.trim() && saveName(input.trim())}>
+      //     Зберегти
+      //   </button>
+      // </div>
+      <Box sx={{
+        minHeight: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+        bgcolor: "#f4f4f4",
+        px: 2,
+      }}>
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 2, width: 400}}>
+          <Typography variant="h4" sx={{ mt: 4, alignSelf: "center" }}>
+            ✏️ Введи своє ім’я
+          </Typography>
+          <TextField
+            label="Введи ім'я"
+            variant="outlined"
+            value={name}
+            onChange={(e) => setInput(e.target.value)}
+            fullWidth
+          />
+          <Button variant="contained" size="large" onClick={() => input.trim() && saveName(input.trim())}>
+            Продовжити
+          </Button>
+        </Box>
+      </Box>
+
+    );
+  }
+
+  return <GamePage playerName={name} />;
 }
 
-export default App
+export default App;
