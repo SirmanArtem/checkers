@@ -1,3 +1,9 @@
+@font-face {
+  font-family: 'GoudyBookletter';
+  src: url('/fonts/GoudyBookletter.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -14,6 +20,8 @@
 }
 
 body {
+  font-family: GoudyBookletter !important;
+
   margin: 0;
   display: flex;
   place-items: center;
@@ -26,15 +34,13 @@ body {
 }
 
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #000000;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #363639;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+:root {
+  color: #000000;
+  background-color: #ffffff;
+}
+a:hover {
+  color: #363639;
+}
+button {
+  background-color: #f9f9f9;
 }

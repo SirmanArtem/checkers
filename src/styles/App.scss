@@ -1,42 +1,98 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+@font-face {
+  font-family: 'strassburg';
+  src: url('/fonts/strassburg.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
-}
+// Narme form
+.name-form {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: #6a6868;
+  padding: 0 16px;
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
+  &__container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 16px;
+    padding: 56px;
+    padding-top: 120px;
+    position: relative;
+
+    width: 600px;
+    height: 400px;
+    z-index: 1;
   }
-  to {
-    transform: rotate(360deg);
+  &__bg {
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    object-fit: fill;
+    top: 0;
+    left: 0;
+    z-index: -1;
+  }
+  &__content {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 64px;
+
+    .Mui-focused .MuiOutlinedInput-notchedOutline {
+      border-color: #795649 !important;
+    }
+    .MuiFormLabel-root.Mui-focused {
+      color: #795649 !important;
+    }
+    .MuiInputBase-root .MuiInputBase-input {
+      font-size: 22px;
+    }
+  }
+  &__logo {
+    width: 450px;
+    position: absolute;
+    top: 40px;
+    left: 50%;
+    transform: translateX(-50%);
   }
 }
-
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+.strassburg-font {
+  font-family: 'strassburg', sans-serif !important;
 }
 
-.card {
-  padding: 2em;
+.medieval-button {
+  padding: 10px 20px;
+  background-color: #795649;
+  color: #f4e5c3;
+  border: 2px solid #c0a080;
+  font-size: 18px;
+  text-shadow: 1px 1px 0px #a67c52;
+  box-shadow: 2px 2px 0px #a67c52;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  cursor: pointer;
 }
 
-.read-the-docs {
-  color: #888;
+.medieval-button:hover {
+  background-color: #8a6e2f;
+  box-shadow: 1px 1px 5px 0px rgba(0, 0, 0, 0.3);
+}
+
+.medieval-button:active {
+  box-shadow: inset 1px 1px 2px 0px rgba(0, 0, 0, 0.5);
+  transform: translateY(2px);
+}
+
+
+// Board
+.board {
+  display: grid;
+  grid-template-columns: repeat(8, 60px);
+  width: 480px;
+  border: 2px solid black;
 }

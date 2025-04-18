@@ -1,4 +1,3 @@
-// src/pages/GamePage.tsx
 import { useState } from 'react';
 import Board from '../components/Board';
 

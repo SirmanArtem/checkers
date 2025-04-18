@@ -1,49 +1,60 @@
-// src/App.tsx
 import { usePlayerName } from './hooks/usePlayerName';
 import GamePage from './pages/GamePage';
+import VantaBackground from "./components/VantaBackground"
+import './styles/app.scss'
 import { useState } from 'react';
 
-import { TextField, Button, Box, Typography } from "@mui/material";
+import { TextField, Box, Typography } from "@mui/material";
 
 function App() {
-  const { name, saveName } = usePlayerName();
+  const { name, saveName, isReady } = usePlayerName();
   const [input, setInput] = useState('');
+  const [submitted, setSubmitted] = useState(false); 
+
+  if (!isReady) {
+    return null;
+  }
 
   if (!name) {
     return (
-      // <div>
-      //   <h2>Введи своє ім’я</h2>
-      //   <input value={input} onChange={e => setInput(e.target.value)} />
-      //   <button onClick={() => input.trim() && saveName(input.trim())}>
-      //     Зберегти
-      //   </button>
-      // </div>
-      <Box sx={{
-        minHeight: "100vh",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
-        alignItems: "center",
-        bgcolor: "#f4f4f4",
-        px: 2,
-      }}>
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 2, width: 400}}>
-          <Typography variant="h4" sx={{ mt: 4, alignSelf: "center" }}>
-            ✏️ Введи своє ім’я
-          </Typography>
-          <TextField
-            label="Введи ім'я"
-            variant="outlined"
-            value={name}
-            onChange={(e) => setInput(e.target.value)}
-            fullWidth
+      <Box className="name-form">
+        <VantaBackground />
+
+        <Box className="name-form__container">
+          <Box className="name-form__bg" 
+            component="img"
+            alt="name-form-bg"
+            src="/form-bg.png"
           />
-          <Button variant="contained" size="large" onClick={() => input.trim() && saveName(input.trim())}>
-            Продовжити
-          </Button>
+          <Box className="name-form__logo" 
+            component="img"
+            alt="name-form-bg"
+            src="/logo.png"
+          />
+          <Box className="name-form__content">
+            <Typography className='strassburg-font' sx={{ fontSize: 100, lineHeight: "40px", alignSelf: "center" }}>
+              enter your name
+            </Typography>
+            <TextField
+              label="Enter name"
+              variant="outlined"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              fullWidth
+              size="small"
+              error={submitted && input.trim() === ''}
+            />
+            <button className='medieval-button' onClick={() => {
+              setSubmitted(true);
+              if (input.trim()) {
+                saveName(input.trim());
+              }
+            }}>
+              Continue
+            </button>
+          </Box>
         </Box>
       </Box>
-
     );
   }
 
