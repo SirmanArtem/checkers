@@ -24,7 +24,7 @@ function App() {
           <Box className="name-form__bg" 
             component="img"
             alt="name-form-bg"
-            src="/form-bg.png"
+            src="/scroll.svg"
           />
           <Box className="name-form__logo" 
             component="img"
