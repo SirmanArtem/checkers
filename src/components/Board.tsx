@@ -1,30 +1,45 @@
 import React, { useState, useEffect } from 'react';
-import { Board as BoardType, PieceType, PlayerColor, Position, Move } from '../types/gameTypes';
+import { Game, PieceType, PlayerColor, Position, Move, GameStatus } from '../types/gameTypes';
 import { BOARD_SIZE, getValidMoves } from '../utils/gameUtils';
 import Square from './Square';
+import { useSnackbar } from 'notistack';
+import { getPieceClass } from '../utils/gameUtils';
 
 interface BoardProps {
-  board: BoardType;
+  game: Game;
   playerColor: PlayerColor;
   isCurrentPlayer: boolean;
+  onMove: (move: Move) => void;
 }
 
-const Board: React.FC<BoardProps> = ({ board, playerColor, isCurrentPlayer }) => {
+const Board: React.FC<BoardProps> = ({ game, playerColor, isCurrentPlayer, onMove }) => {
   const [selectedPosition, setSelectedPosition] = useState<Position | null>(null);
   const [validMoves, setValidMoves] = useState<Move[]>([]);
+  const {board, status } = game
 
-  // При зміні дошки скидаємо вибрану позицію і допустимі ходи
+  const { enqueueSnackbar } = useSnackbar();
+
   useEffect(() => {
     setSelectedPosition(null);
     setValidMoves([]);
   }, [board]);
 
   const handleSquareClick = (position: Position) => {
-    console.log("Клік на позицію:", position);
-    if (!isCurrentPlayer) {
-      console.log("Не ваш хід");
-      return;
-    }
+        console.log("Клік на позицію:", position);
+        if (!isCurrentPlayer && status === GameStatus.IN_PROGRESS) {
+            console.log("Не ваш хід");
+            enqueueSnackbar('Not your move', {variant: 'warning', preventDuplicate: true, anchorOrigin: { vertical: 'bottom', horizontal: 'left' }})
+            return;
+        } else if (status === GameStatus.WAITING) {
+            console.log("Немає 2 гравця");
+            enqueueSnackbar('No second player!', {variant: 'warning', preventDuplicate: true, anchorOrigin: { vertical: 'bottom', horizontal: 'left' }})
+            return;
+        } else if (status === GameStatus.FINISHED) {
+            console.log("Гру завершено");
+            enqueueSnackbar('Game over', {variant: 'success', preventDuplicate: true, anchorOrigin: { vertical: 'bottom', horizontal: 'left' }})
+            return;
+        }
+    
 
     const { row, col } = position;
     const piece = board.squares[row][col];
@@ -41,7 +56,7 @@ const Board: React.FC<BoardProps> = ({ board, playerColor, isCurrentPlayer }) =>
       
       if (moveToMake) {
         console.log("Робимо хід:", moveToMake);
-        
+        onMove(moveToMake);
         setSelectedPosition(null);
         setValidMoves([]);
         return;
@@ -122,6 +137,15 @@ const Board: React.FC<BoardProps> = ({ board, playerColor, isCurrentPlayer }) =>
   return (
     <div className="board">
       {renderBoard()}
+
+      <div className={`game-over ${status === GameStatus.FINISHED && 'active'}`}>
+        <div className="winner">
+            {game.winner === playerColor ? (<h1>You win</h1>) : (<h1 style={{color: 'red'}}>You lose</h1>)}
+            <p>Winner: {game.winner === PlayerColor.WHITE ? game.playerWhiteName : game.playerBlackName }</p>
+            <div className={getPieceClass(game.winner, game)}></div>
+        </div>
+        <div className="game-over__backdrop"></div>
+      </div>
     </div>
   );
 };

@@ -1,6 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { SnackbarProvider } from 'notistack';
 import './styles/index.scss'
 import App from './App.tsx'
 
@@ -16,8 +17,10 @@ let theme = createTheme({
 
 createRoot(document.getElementById('root')!).render(
   <ThemeProvider theme={theme}>
-    <StrictMode>
-      <App />
-    </StrictMode>
+    <SnackbarProvider maxSnack={3} autoHideDuration={2000}>
+      <StrictMode>
+        <App />
+      </StrictMode>
+    </SnackbarProvider>
   </ThemeProvider>
 )

@@ -1,6 +1,37 @@
-import { Board, PieceType, PlayerColor, Position, Move, Game } from '../types/gameTypes';
+import { Board, PieceType, PlayerColor, Position, Move } from '../types/gameTypes';
+import { v4 as uuidv4 } from 'uuid';
 
 export const BOARD_SIZE = 8;
+
+export const createInitialBoard = (): Board => {
+  const squares: PieceType[][] = Array(BOARD_SIZE)
+    .fill(null)
+    .map(() => Array(BOARD_SIZE).fill(PieceType.NONE));
+
+  // Розставляємо чорні шашки (верхні 3 ряди)
+  for (let row = 0; row < 3; row++) {
+    for (let col = 0; col < BOARD_SIZE; col++) {
+      if ((row + col) % 2 === 1) {
+        squares[row][col] = PieceType.BLACK;
+      }
+    }
+  }
+
+  // Розставляємо білі шашки (нижні 3 ряди)
+  for (let row = 5; row < 8; row++) {
+    for (let col = 0; col < BOARD_SIZE; col++) {
+      if ((row + col) % 2 === 1) {
+        squares[row][col] = PieceType.WHITE;
+      }
+    }
+  }
+
+  return { squares };
+};
+
+export const createGameId = (): string => {
+  return uuidv4().substring(0, 8);
+};
 
 export const isKingPosition = (position: Position, pieceType: PieceType): boolean => {
   if (pieceType === PieceType.WHITE && position.row === 0) {
@@ -65,6 +96,7 @@ export const checkCaptures = (
   playerColor: PlayerColor
 ): Move[] => {
   const { row, col } = position;
+  const piece = board.squares[row][col];
   const moves: Move[] = [];
   
   const directions = [[-1, -1], [-1, 1], [1, -1], [1, 1]]; // Всі діагональні напрямки для захоплення
@@ -104,18 +136,73 @@ export const isValidPosition = (row: number, col: number): boolean => {
   return row >= 0 && row < BOARD_SIZE && col >= 0 && col < BOARD_SIZE;
 };
 
-export function getPieceClass(
-  pieceColor: PlayerColor | undefined,
-  game: Game
-): string {
-  const isCurrent = pieceColor === game.currentPlayer ? "piece-curent" : "";
-  const colorClass = pieceColor === PlayerColor.WHITE ? "white-piece" : "black-piece";
+export const applyMove = (board: Board, move: Move): Board => {
+  const { from, to, captured } = move;
+  const newBoard: Board = {
+    squares: board.squares.map(row => [...row])
+  };
+  
+  const piece = newBoard.squares[from.row][from.col];
+  newBoard.squares[from.row][from.col] = PieceType.NONE;
+  
+  // Перевірка на коронацію
+  if (isKingPosition(to, piece)) {
+    if (piece === PieceType.WHITE) {
+      newBoard.squares[to.row][to.col] = PieceType.WHITE_KING;
+    } else if (piece === PieceType.BLACK) {
+      newBoard.squares[to.row][to.col] = PieceType.BLACK_KING;
+    }
+  } else {
+    newBoard.squares[to.row][to.col] = piece;
+  }
+  
+  if (captured) {
+    newBoard.squares[captured.row][captured.col] = PieceType.NONE;
+  }
+  
+  return newBoard;
+};
 
-  const winnerClass = game.winner === pieceColor
-    ? pieceColor === PlayerColor.WHITE
-      ? "white-king"
-      : "black-king"
-    : "";
+export const isGameOver = (board: Board): boolean => {
+  let whiteCount = 0;
+  let blackCount = 0;
+  
+  for (let row = 0; row < BOARD_SIZE; row++) {
+    for (let col = 0; col < BOARD_SIZE; col++) {
+      const piece = board.squares[row][col];
+      if (piece === PieceType.WHITE || piece === PieceType.WHITE_KING) {
+        whiteCount++;
+      } else if (piece === PieceType.BLACK || piece === PieceType.BLACK_KING) {
+        blackCount++;
+      }
+    }
+  }
+  
+  // Гра закінчується, якщо в якогось гравця не залишилось шашок
+  return whiteCount === 0 || blackCount === 0;
+};
 
-  return `piece ${isCurrent} ${colorClass} ${winnerClass}`.trim();
-}
+export const getWinner = (board: Board): PlayerColor | null => {
+  let whiteCount = 0;
+  let blackCount = 0;
+  
+  for (let row = 0; row < BOARD_SIZE; row++) {
+    for (let col = 0; col < BOARD_SIZE; col++) {
+      const piece = board.squares[row][col];
+      if (piece === PieceType.WHITE || piece === PieceType.WHITE_KING) {
+        whiteCount++;
+      } else if (piece === PieceType.BLACK || piece === PieceType.BLACK_KING) {
+        blackCount++;
+      }
+    }
+  }
+  
+  if (whiteCount === 0) {
+    return PlayerColor.BLACK;
+  }
+  if (blackCount === 0) {
+    return PlayerColor.WHITE;
+  }
+  
+  return null;
+}; 
