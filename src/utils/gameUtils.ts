@@ -36,23 +36,50 @@ export const getValidMoves = (
   const moves: Move[] = [];
   const isKing = piece === PieceType.WHITE_KING || piece === PieceType.BLACK_KING;
   
-  // Для всіх шашок (звичайних і королів) дозволяємо рух у всіх напрямках
-  const directions = [[-1, -1], [-1, 1], [1, -1], [1, 1]];
+  let directions: [number, number][];
+  
+  if (isKing) {
+    directions = [[-1, -1], [-1, 1], [1, -1], [1, 1]];
+  } else if (playerColor === PlayerColor.WHITE) {
+    directions = [[-1, -1], [-1, 1]];
+  } else {
+    directions = [[1, -1], [1, 1]];
+  }
 
-  // Перевіряємо звичайні ходи
   for (const [dr, dc] of directions) {
-    const newRow = row + dr;
-    const newCol = col + dc;
-    
-    if (isValidPosition(newRow, newCol) && board.squares[newRow][newCol] === PieceType.NONE) {
-      moves.push({
-        from: { row, col },
-        to: { row: newRow, col: newCol }
-      });
+    if (isKing) {
+      let distance = 1;
+      while (true) {
+        const newRow = row + dr * distance;
+        const newCol = col + dc * distance;
+        
+        if (!isValidPosition(newRow, newCol)) {
+          break;
+        }
+        
+        if (board.squares[newRow][newCol] === PieceType.NONE) {
+          moves.push({
+            from: { row, col },
+            to: { row: newRow, col: newCol }
+          });
+          distance++;
+        } else {
+          break;
+        }
+      }
+    } else {
+      const newRow = row + dr;
+      const newCol = col + dc;
+      
+      if (isValidPosition(newRow, newCol) && board.squares[newRow][newCol] === PieceType.NONE) {
+        moves.push({
+          from: { row, col },
+          to: { row: newRow, col: newCol }
+        });
+      }
     }
   }
 
-  // Перевіряємо можливість взяття
   const captureMoves = checkCaptures(board, position, playerColor);
   moves.push(...captureMoves);
 
@@ -65,34 +92,98 @@ export const checkCaptures = (
   playerColor: PlayerColor
 ): Move[] => {
   const { row, col } = position;
+  const piece = board.squares[row][col];
   const moves: Move[] = [];
+  const isKing = piece === PieceType.WHITE_KING || piece === PieceType.BLACK_KING;
   
-  const directions = [[-1, -1], [-1, 1], [1, -1], [1, 1]]; // Всі діагональні напрямки для захоплення
+  const directions = [[-1, -1], [-1, 1], [1, -1], [1, 1]]; 
   
   for (const [dr, dc] of directions) {
-    const captureRow = row + dr;
-    const captureCol = col + dc;
-    
-    if (!isValidPosition(captureRow, captureCol)) {
-      continue;
-    }
-    
-    const capturePiece = board.squares[captureRow][captureCol];
-    const isOpponentPiece = (
-      (playerColor === PlayerColor.WHITE && (capturePiece === PieceType.BLACK || capturePiece === PieceType.BLACK_KING)) ||
-      (playerColor === PlayerColor.BLACK && (capturePiece === PieceType.WHITE || capturePiece === PieceType.WHITE_KING))
-    );
-    
-    if (isOpponentPiece) {
-      const landRow = captureRow + dr;
-      const landCol = captureCol + dc;
+    if (isKing) {
+      let distance = 1;
+      let foundOpponent = false;
+      let opponentRow = -1;
+      let opponentCol = -1;
       
-      if (isValidPosition(landRow, landCol) && board.squares[landRow][landCol] === PieceType.NONE) {
-        moves.push({
-          from: { row, col },
-          to: { row: landRow, col: landCol },
-          captured: { row: captureRow, col: captureCol }
-        });
+      while (true) {
+        const checkRow = row + dr * distance;
+        const checkCol = col + dc * distance;
+        
+        if (!isValidPosition(checkRow, checkCol)) {
+          break; 
+        }
+        
+        const checkPiece = board.squares[checkRow][checkCol];
+        
+        if (checkPiece === PieceType.NONE) {
+          distance++;
+          continue;
+        }
+        
+        const isOpponentPiece = (
+          (playerColor === PlayerColor.WHITE && (checkPiece === PieceType.BLACK || checkPiece === PieceType.BLACK_KING)) ||
+          (playerColor === PlayerColor.BLACK && (checkPiece === PieceType.WHITE || checkPiece === PieceType.WHITE_KING))
+        );
+        
+        if (isOpponentPiece && !foundOpponent) {
+          foundOpponent = true;
+          opponentRow = checkRow;
+          opponentCol = checkCol;
+          distance++;
+          break;
+        }
+        
+        break;
+      }
+      
+      if (foundOpponent) {
+        let landingDistance = distance;
+        
+        while (true) {
+          const landRow = row + dr * landingDistance;
+          const landCol = col + dc * landingDistance;
+          
+          if (!isValidPosition(landRow, landCol)) {
+            break; 
+          }
+          
+          if (board.squares[landRow][landCol] === PieceType.NONE) {
+            moves.push({
+              from: { row, col },
+              to: { row: landRow, col: landCol },
+              captured: { row: opponentRow, col: opponentCol }
+            });
+            landingDistance++;
+          } else {
+            break;
+          }
+        }
+      }
+    } else {
+      const captureRow = row + dr;
+      const captureCol = col + dc;
+      
+      if (!isValidPosition(captureRow, captureCol)) {
+        continue;
+      }
+      
+      const capturePiece = board.squares[captureRow][captureCol];
+      const isOpponentPiece = (
+        (playerColor === PlayerColor.WHITE && (capturePiece === PieceType.BLACK || capturePiece === PieceType.BLACK_KING)) ||
+        (playerColor === PlayerColor.BLACK && (capturePiece === PieceType.WHITE || capturePiece === PieceType.WHITE_KING))
+      );
+      
+      if (isOpponentPiece) {
+        const landRow = captureRow + dr;
+        const landCol = captureCol + dc;
+        
+        if (isValidPosition(landRow, landCol) && board.squares[landRow][landCol] === PieceType.NONE) {
+          moves.push({
+            from: { row, col },
+            to: { row: landRow, col: landCol },
+            captured: { row: captureRow, col: captureCol }
+          });
+        }
       }
     }
   }

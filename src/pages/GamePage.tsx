@@ -10,6 +10,8 @@ import NotFound from '../components/404';
 import Login from './Login';
 import { useSnackbar } from 'notistack';
 import { getPieceClass } from '../utils/gameUtils';
+import ConfettiComponent from '../components/Confetti'
+import EmojiConfetti from '../components/Emoji'
 
 const SOCKET_SERVER_URL = 'http://localhost:5001';
 
@@ -93,48 +95,53 @@ const GamePage = () => {
     }
 
     return (
-        <div className='game-container'>
-            <div className="game-info">
-                <Box className="game-info__bg" 
-                    component="img"
-                    alt="name-form-bg"
-                    src="/scroll.svg"
-                />
-                <h2 className='strassburg-font'>Game:</h2>
-                <div className="players">
-                    <div className="player-info">
-                        <div className={getPieceClass(playerColor, game)} />
-                        <p><b>You:</b> {playerColor == PlayerColor.WHITE ? game.playerWhiteName : game.playerBlackName}</p>
-                    </div>
-                    <div className="player-info">
-                        <div className={getPieceClass(playerColor === PlayerColor.WHITE ? PlayerColor.BLACK : PlayerColor.WHITE, game)} />
-                        <p><b>Enemy:</b> {playerColor == PlayerColor.WHITE ? game.playerBlackName : game.playerWhiteName}</p>
-                    </div>
-                </div>
-                <div className="game-status">
-                    <p>Status: {game.status === GameStatus.WAITING ? 'Player waiting' : 
-                    game.status === GameStatus.IN_PROGRESS ? 'Game continues' : 
-                    'Game over'}</p>
-                    <p>Game ID: {gameId}</p>
-                </div>
+        <div className='game'>
+            <div className='game-bg'></div>
+            {game.status === GameStatus.FINISHED && (game.winner === playerColor ? <ConfettiComponent /> : <EmojiConfetti />)}
 
-                <button className='medieval-button share-button' onClick={() => {
-                    setIcon(true)
-                    handleCopyClick()
-                }}>
-                    {icon ? 
-                        (<DoneIcon sx={{ fontSize: 16 }}/>)
-                    :
-                        (<ContentCopyIcon sx={{ fontSize: 16 }}/>)
-                    }
-                Share
-                </button>
+            <div className='game-container'>
+                <div className="game-info">
+                    <Box className="game-info__bg" 
+                        component="img"
+                        alt="name-form-bg"
+                        src="/scroll.svg"
+                    />
+                    <h2 className='strassburg-font'>Game:</h2>
+                    <div className="players">
+                        <div className="player-info">
+                            <div className={getPieceClass(playerColor, game)} />
+                            <p><b>You:</b> {playerColor == PlayerColor.WHITE ? game.playerWhiteName : game.playerBlackName}</p>
+                        </div>
+                        <div className="player-info">
+                            <div className={getPieceClass(playerColor === PlayerColor.WHITE ? PlayerColor.BLACK : PlayerColor.WHITE, game)} />
+                            <p><b>Enemy:</b> {playerColor == PlayerColor.WHITE ? game.playerBlackName : game.playerWhiteName}</p>
+                        </div>
+                    </div>
+                    <div className="game-status">
+                        <p>Status: {game.status === GameStatus.WAITING ? 'Player waiting' : 
+                        game.status === GameStatus.IN_PROGRESS ? 'Game continues' : 
+                        'Game over'}</p>
+                        <p>Game ID: {gameId}</p>
+                    </div>
+
+                    <button className='medieval-button share-button' onClick={() => {
+                        setIcon(true)
+                        handleCopyClick()
+                    }}>
+                        {icon ? 
+                            (<DoneIcon sx={{ fontSize: 16 }}/>)
+                        :
+                            (<ContentCopyIcon sx={{ fontSize: 16 }}/>)
+                        }
+                    Share
+                    </button>
+                </div>
+                <Board game={game}
+                    playerColor={playerColor}
+                    isCurrentPlayer={game.currentPlayer === playerColor && game.status === GameStatus.IN_PROGRESS}
+                    onMove={handleMove} 
+                />
             </div>
-            <Board game={game}
-                playerColor={playerColor}
-                isCurrentPlayer={game.currentPlayer === playerColor && game.status === GameStatus.IN_PROGRESS}
-                onMove={handleMove} 
-            />
         </div>
     );
 };

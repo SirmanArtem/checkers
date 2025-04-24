@@ -97,7 +97,7 @@
   position: relative;
   width: fit-content;
   display: inline-block;
-  border: 2px solid #2c5282;
+  border: 20px solid #9d8053;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
@@ -158,6 +158,7 @@
     z-index: 1;
   }
 }
+
 
 // Square
 .square {
@@ -236,6 +237,18 @@
 }
 
 // Game
+.game-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  z-index: -2;
+
+  background-image: url('/game-bg.png');
+  background-size: cover;
+  
+}
 .game-container {
   padding: 40px;
   padding-top: 10px;
@@ -458,6 +471,9 @@
   .piece {
     width: 31px;
     height: 31px;
+  }
+  .board {
+    border-width: 10px;
   }
 }
 
