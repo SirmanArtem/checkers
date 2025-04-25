@@ -9,7 +9,7 @@
         "destination": "/index.html"
       },
       {
-        "source": "*",
+        "source": "/:path*",
         "destination": "/index.html"
       }
     ]
