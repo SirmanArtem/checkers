@@ -1,0 +1,9 @@
+{
+    "rewrites": [
+      {
+        "source": "/game/:gameId",
+        "destination": "/index.html"
+      }
+    ]
+  }
+  
