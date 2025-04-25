@@ -195,10 +195,10 @@ export const isValidPosition = (row: number, col: number): boolean => {
   return row >= 0 && row < BOARD_SIZE && col >= 0 && col < BOARD_SIZE;
 };
 
-export function getPieceClass(
+export const getPieceClass = (
   pieceColor: PlayerColor | undefined,
   game: Game
-): string {
+): string => {
   const isCurrent = pieceColor === game.currentPlayer ? "piece-curent" : "";
   const colorClass = pieceColor === PlayerColor.WHITE ? "white-piece" : "black-piece";
 
@@ -210,3 +210,7 @@ export function getPieceClass(
 
   return `piece ${isCurrent} ${colorClass} ${winnerClass}`.trim();
 }
+
+export const getPlayerName = (game: Game, color: PlayerColor): string | undefined => {
+  return color === PlayerColor.WHITE ? game.playerWhiteName : game.playerBlackName;
+};

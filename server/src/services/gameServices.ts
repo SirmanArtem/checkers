@@ -1,5 +1,5 @@
 import pool from '../models/db';
-import { Game, Board, PlayerColor, GameStatus, PieceType } from '../types/gameTypes';
+import { Game, PlayerColor, GameStatus } from '../types/gameTypes';
 import { createInitialBoard, createGameId } from '../utils/gameUtils';
 
 export const createGame = async (playerName: string): Promise<Game> => {
@@ -18,10 +18,8 @@ export const createGame = async (playerName: string): Promise<Game> => {
   };
   
   try {
-    // Безпечне перетворення об'єкта board на JSON
     const boardJson = JSON.stringify(initialBoard);
     
-    // Зберігаємо гру в базі даних
     await pool.query(
       `INSERT INTO games (id, board, current_player, status, player_white_name, created_at)
        VALUES ($1, $2, $3, $4, $5, $6)`,
@@ -55,7 +53,6 @@ export const getGameById = async (gameId: string): Promise<Game | null> => {
     
     const gameData = result.rows[0];
     
-    // Перевірка, чи поле board є рядком JSON, і його безпечний парсинг
     let boardData;
     try {
       boardData = typeof gameData.board === 'string' 
@@ -86,7 +83,6 @@ export const getGameById = async (gameId: string): Promise<Game | null> => {
 
 export const updateGame = async (game: Game): Promise<void> => {
   try {
-    // Безпечне перетворення об'єкта board на JSON
     const boardJson = JSON.stringify(game.board);
     
     await pool.query(
@@ -129,7 +125,6 @@ export const getOpenGames = async (): Promise<Game[]> => {
     );
     
     return result.rows.map((gameData: any) => {
-      // Перевірка, чи поле board є рядком JSON, і його безпечний парсинг
       let boardData;
       try {
         boardData = typeof gameData.board === 'string' 

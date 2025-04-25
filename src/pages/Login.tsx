@@ -6,8 +6,6 @@ import VantaBackground from "../components/VantaBackground"
 
 import { TextField, Box, Typography } from "@mui/material";
 
-const SOCKET_SERVER_URL = 'http://localhost:5001';
-
 interface LoginProps {
     id?: string;
 }
@@ -20,7 +18,7 @@ const Login: React.FC<LoginProps> = ({ id }) => {
   const [socket, setSocket] = useState<Socket | null>(null);
 
   useEffect(() => {
-    const newSocket = io(SOCKET_SERVER_URL);
+    const newSocket = io(import.meta.env.VITE_SOCKET_SERVER_URL);
     setSocket(newSocket);
 
     newSocket.on('connect', () => {
@@ -45,6 +43,8 @@ const Login: React.FC<LoginProps> = ({ id }) => {
   useEffect(() => {
     if (!id && socket && name) {
       handleCreateGame();
+    } else if (id && socket && name) {
+        navigate(`/game/${id}`)
     }
   }, [socket, name]);
 
@@ -86,9 +86,6 @@ const Login: React.FC<LoginProps> = ({ id }) => {
               setSubmitted(true);
               if (input.trim()) {
                 saveName(input.trim());
-                if (id) {
-                    navigate(`/game/${id}`)
-                }
               }
             }}>
               Continue

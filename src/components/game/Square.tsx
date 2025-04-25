@@ -1,6 +1,5 @@
 import React from 'react';
-import { PieceType, Position } from '../types/gameTypes';
-import '../styles/Square.css';
+import { PieceType, Position } from '../../types/gameTypes';
 
 interface SquareProps {
   position: Position;

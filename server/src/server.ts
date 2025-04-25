@@ -97,7 +97,6 @@ io.on('connection', (socket) => {
         playerColor = PlayerColor.BLACK;
         console.log(`Player ${playerName} reconnected as BLACK in game ${gameId}`);
       } else {
-        // Новий гравець намагається приєднатися
         playerId = uuidv4();
         
         if (!game.playerWhiteId) {
@@ -111,7 +110,6 @@ io.on('connection', (socket) => {
           playerColor = PlayerColor.BLACK;
           console.log(`⚫️Player ${playerName} joined as BLACK in game ${gameId}`);
           
-          // Якщо приєдналися обидва гравці, змінюємо статус гри
           game.status = GameStatus.IN_PROGRESS;
           console.log(`Game ${gameId} is now IN_PROGRESS with players ${game.playerWhiteName} and ${game.playerBlackName}`);
         } else {
@@ -208,7 +206,6 @@ io.on('connection', (socket) => {
     }
   });
   
-  // Вихід з гри
   socket.on('leaveGame', async ({ gameId }) => {
     try {
       socket.leave(gameId);

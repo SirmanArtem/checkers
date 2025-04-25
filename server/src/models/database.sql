@@ -15,11 +15,3 @@ CREATE TABLE IF NOT EXISTS games (
   winner player_color,
   created_at TIMESTAMP NOT NULL
 );
-
--- Створення таблиці для гравців
-CREATE TABLE IF NOT EXISTS players (
-  id VARCHAR(255) PRIMARY KEY,
-  name VARCHAR(255) NOT NULL,
-  socket_id VARCHAR(255) NOT NULL,
-  created_at TIMESTAMP NOT NULL
-); 

@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Game, PieceType, PlayerColor, Position, Move, GameStatus } from '../types/gameTypes';
-import { BOARD_SIZE, getValidMoves } from '../utils/gameUtils';
+import { Game, PieceType, PlayerColor, Position, Move, GameStatus } from '../../types/gameTypes';
+import { BOARD_SIZE, getValidMoves } from '../../utils/gameUtils';
 import Square from './Square';
 import { useSnackbar } from 'notistack';
-import { getPieceClass } from '../utils/gameUtils';
+import { getPieceClass } from '../../utils/gameUtils';
 
 interface BoardProps {
   game: Game;
@@ -25,31 +25,30 @@ const Board: React.FC<BoardProps> = ({ game, playerColor, isCurrentPlayer, onMov
   }, [board]);
 
   const handleSquareClick = (position: Position) => {
-        console.log("Клік на позицію:", position);
-        if (!isCurrentPlayer && status === GameStatus.IN_PROGRESS) {
-            console.log("Не ваш хід");
-            enqueueSnackbar('Not your move', {variant: 'warning', preventDuplicate: true, anchorOrigin: { vertical: 'bottom', horizontal: 'left' }})
-            return;
-        } else if (status === GameStatus.WAITING) {
-            console.log("Немає 2 гравця");
-            enqueueSnackbar('No second player!', {variant: 'warning', preventDuplicate: true, anchorOrigin: { vertical: 'bottom', horizontal: 'left' }})
-            return;
-        } else if (status === GameStatus.FINISHED) {
-            console.log("Гру завершено");
-            enqueueSnackbar('Game over', {variant: 'success', preventDuplicate: true, anchorOrigin: { vertical: 'bottom', horizontal: 'left' }})
-            return;
-        }
+    console.log("Клік на позицію:", position);
+    if (!isCurrentPlayer && status === GameStatus.IN_PROGRESS) {
+        console.log("Не ваш хід");
+        enqueueSnackbar('Not your move', {variant: 'warning', preventDuplicate: true, anchorOrigin: { vertical: 'bottom', horizontal: 'left' }})
+        return;
+    }
+    if (status === GameStatus.WAITING) {
+        console.log("Немає 2 гравця");
+        enqueueSnackbar('No second player!', {variant: 'warning', preventDuplicate: true, anchorOrigin: { vertical: 'bottom', horizontal: 'left' }})
+        return;
+    }
+    if (status === GameStatus.FINISHED) {
+        console.log("Гру завершено");
+        enqueueSnackbar('Game over', {variant: 'success', preventDuplicate: true, anchorOrigin: { vertical: 'bottom', horizontal: 'left' }})
+        return;
+    }
     
-
     const { row, col } = position;
     const piece = board.squares[row][col];
     console.log("Фігура на позиції:", piece);
     
-    // Якщо вже вибрана клітинка, спробуємо зробити хід
     if (selectedPosition) {
       console.log("Вже є вибрана позиція:", selectedPosition);
       
-      // Перевіряємо, чи є цей хід в списку валідних ходів
       const moveToMake = validMoves.find(move => 
         move.to.row === row && move.to.col === col
       );
@@ -62,7 +61,6 @@ const Board: React.FC<BoardProps> = ({ game, playerColor, isCurrentPlayer, onMov
         return;
       }
       
-      // Якщо гравець клікнув не на валідний хід, а на свою шашку, переобираємо її
       const isPieceOwn = 
         (playerColor === PlayerColor.WHITE && (piece === PieceType.WHITE || piece === PieceType.WHITE_KING)) ||
         (playerColor === PlayerColor.BLACK && (piece === PieceType.BLACK || piece === PieceType.BLACK_KING));
@@ -76,12 +74,10 @@ const Board: React.FC<BoardProps> = ({ game, playerColor, isCurrentPlayer, onMov
         return;
       }
       
-      // Якщо гравець клікнув кудись інакше, скидаємо вибір
       console.log("Скидаємо вибір");
       setSelectedPosition(null);
       setValidMoves([]);
     } else {
-      // Перша клітинка вибрана
       const isPieceOwn = 
         (playerColor === PlayerColor.WHITE && (piece === PieceType.WHITE || piece === PieceType.WHITE_KING)) ||
         (playerColor === PlayerColor.BLACK && (piece === PieceType.BLACK || piece === PieceType.BLACK_KING));
