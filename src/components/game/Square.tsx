@@ -1,6 +1,7 @@
 import React from 'react';
-import { PieceType, Position } from '../../types/gameTypes';
 import { CircularProgress } from '@mui/material';
+
+import { PieceType, Position } from '../../types/gameTypes';
 
 interface SquareProps {
   position: Position;
@@ -10,6 +11,7 @@ interface SquareProps {
   onClick: () => void;
   showSpinner?: boolean;
 }
+
 
 const Square: React.FC<SquareProps> = ({ position, piece, isSelected, isHighlighted, onClick, showSpinner }) => {
   const { row, col } = position;

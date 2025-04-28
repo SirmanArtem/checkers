@@ -1,7 +1,10 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+
 import Login from './pages/Login';
 import GamePage from './pages/GamePage';
+
 import './styles/App.scss'
+
 
 const App = () => {
   return (

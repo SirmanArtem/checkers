@@ -6,8 +6,8 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import { Box } from "@mui/material";
 import { useSnackbar } from 'notistack';
 
-import { getPieceClass, getPlayerName } from '../../utils/gameUtils';
 import { Game, PlayerColor, GameStatus } from '../../types/gameTypes';
+import { getPlayerName, getPieceClass } from '../../utils/boardUtils';
 
 interface GameInfoProps {
     game: Game,
@@ -15,6 +15,7 @@ interface GameInfoProps {
     playerColor: PlayerColor,
 
 }
+
 
 const GameInfo: React.FC<GameInfoProps> = ({ game, gameId, playerColor }) => {
     const [copy, setCopy] = useState<boolean>(false)

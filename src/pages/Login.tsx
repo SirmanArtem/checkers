@@ -1,10 +1,12 @@
-import { useNavigate } from 'react-router-dom';
-import { io, Socket } from 'socket.io-client';
 import { useState, useEffect } from 'react';
-import { usePlayerName } from '../hooks/usePlayerName';
+import { useNavigate } from 'react-router-dom';
+import { TextField, Box, Typography } from "@mui/material";
+import { io, Socket } from 'socket.io-client';
+
 import VantaBackground from "../components/VantaBackground"
 
-import { TextField, Box, Typography } from "@mui/material";
+import { usePlayerName } from '../hooks/usePlayerName';
+
 
 interface LoginProps {
     id?: string;

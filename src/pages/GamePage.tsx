@@ -6,13 +6,12 @@ import { useSnackbar } from 'notistack';
 import Login from './Login';
 import NotFound from '../components/404';
 import Board from '../components/game/Board';
+import GameInfo from '../components/game/GameInfo';
 import ConfettiComponent from '../components/Confetti'
 import EmojiConfetti from '../components/Emoji'
 
 import { Move, GameStatus, Position } from '../types/gameTypes';
-
 import { useGameSocket } from '../hooks/useGameSocket';
-import GameInfo from '../components/game/GameInfo';
 
 
 const GamePage = () => {

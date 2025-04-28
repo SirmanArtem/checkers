@@ -26,6 +26,7 @@ export interface Move {
   from: Position;
   to: Position;
   captured?: Position;
+  chain?: Move;
 }
 
 export interface Board {

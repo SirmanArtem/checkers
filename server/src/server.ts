@@ -3,11 +3,13 @@ import http from 'http';
 import { Server } from 'socket.io';
 import cors from 'cors';
 import { v4 as uuidv4 } from 'uuid';
+
 import pool from './models/db';
 
-import { Game, PlayerColor, GameStatus, Move, GameErrorCode } from './types/gameTypes';
-import { createGame, getGameById, updateGame, getOpenGames } from './services/gameServices';
+import { PlayerColor, GameStatus, GameErrorCode } from './types/gameTypes';
+import { createGame, getGameById, updateGame } from './services/gameServices';
 import { applyMove, isGameOver, getWinner, getValidMoves } from './utils/gameUtils';
+
 
 const app = express();
 const server = http.createServer(app);
@@ -148,7 +150,6 @@ io.on('connection', (socket) => {
       console.log('Отримано запит на переміщення:', { gameId, move, playerColor });
       const game = await getGameById(gameId);
       io.to(gameId).emit('movePending', { from: move.from });
-      await new Promise(resolve => setTimeout(resolve, 2000));
       
       if (!game) {
         console.log('Гра не знайдена:', gameId);

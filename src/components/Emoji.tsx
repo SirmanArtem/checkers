@@ -13,7 +13,7 @@ const EmojiConfetti = () => {
   }, []);
 
   const drawShape = (ctx: any) => {
-    ctx.save(); // не обертаємо
+    ctx.save();
     ctx.font = '40px serif';
     ctx.fillText('💩', 0, 0);
     ctx.restore();

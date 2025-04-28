@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
-import { Game as GameType, PlayerColor, GameErrorCode, GameError, Position } from '../types/gameTypes';
 import { useSnackbar } from 'notistack';
+import { Game as GameType, PlayerColor, GameErrorCode, GameError, Position } from '../types/gameTypes';
 
 interface UseGameSocketProps {
   gameId?: string;
   playerName?: string;
   setMovingFrom?: React.Dispatch<React.SetStateAction<Position | null>>;
 }
+
+
 export const useGameSocket = ({ gameId, playerName, setMovingFrom }: UseGameSocketProps) => {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [game, setGame] = useState<GameType | null>(null);
