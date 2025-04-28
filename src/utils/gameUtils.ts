@@ -1,4 +1,4 @@
-import { Board, PieceType, PlayerColor, Position, Move, Game } from '../types/gameTypes';
+import { Board, PieceType, PlayerColor, Position, Move } from '../types/gameTypes';
 
 export const BOARD_SIZE = 8;
 
