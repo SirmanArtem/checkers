@@ -170,6 +170,13 @@
   position: relative;
   cursor: pointer;
 }
+.spinner-overlay {
+  height: 24px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
 
 .dark-square {
   background-color: #8b4513;
@@ -314,6 +321,27 @@
   align-items: center;
   justify-content: center;
 }
+.leave-button {
+  padding: 10px 15px;
+  background-color: #e12424;
+  color: #ffffff;
+  border: 2px solid rgb(202, 32, 32);
+  font-size: 16px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+
+  margin-top: 60px;
+  width: 100%;
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    background-color: #fb2424;
+  }
+}
 
 // 404
 .not-found {
@@ -360,6 +388,9 @@
     .piece {
       flex: none;
     }
+  }
+  .leave-button {
+    margin-top: 10px;
   }
 }
 
@@ -463,6 +494,13 @@
   .share-button {
     width: 70%;
     margin-top: 5px;
+  }
+  .leave-button {
+    width: 70%;
+  }
+  .share-button, .leave-button {
+    padding-top: 8px;
+    padding-bottom: 8px;
   }
   .square {
     width: 45px;

@@ -9,10 +9,11 @@ interface BoardProps {
   game: Game;
   playerColor: PlayerColor;
   isCurrentPlayer: boolean;
+  movingFrom: Position | null;
   onMove: (move: Move) => void;
 }
 
-const Board: React.FC<BoardProps> = ({ game, playerColor, isCurrentPlayer, onMove }) => {
+const Board: React.FC<BoardProps> = ({ game, playerColor, isCurrentPlayer, movingFrom, onMove }) => {
   const [selectedPosition, setSelectedPosition] = useState<Position | null>(null);
   const [validMoves, setValidMoves] = useState<Move[]>([]);
   const {board, status } = game
@@ -112,6 +113,7 @@ const Board: React.FC<BoardProps> = ({ game, playerColor, isCurrentPlayer, onMov
         const piece = board.squares[rowIdx][colIdx];
         const isSelected = selectedPosition !== null && selectedPosition.row === rowIdx && selectedPosition.col === colIdx;
         const isHighlighted = isValidMove(position);
+        const showSpinner = movingFrom?.row === rowIdx && movingFrom?.col === colIdx;
         
         squaresInRow.push(
           <Square
@@ -121,6 +123,7 @@ const Board: React.FC<BoardProps> = ({ game, playerColor, isCurrentPlayer, onMov
             isSelected={isSelected}
             isHighlighted={isHighlighted}
             onClick={() => handleSquareClick(position)}
+            showSpinner={showSpinner}
           />
         );
       }

@@ -1,10 +1,14 @@
 import { useEffect, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
-import { Game as GameType, PlayerColor } from '../types/gameTypes';
+import { Game as GameType, PlayerColor, GameErrorCode, GameError, Position } from '../types/gameTypes';
 import { useSnackbar } from 'notistack';
 
-
-export const useGameSocket = (gameId?: string, playerName?: string) => {
+interface UseGameSocketProps {
+  gameId?: string;
+  playerName?: string;
+  setMovingFrom?: React.Dispatch<React.SetStateAction<Position | null>>;
+}
+export const useGameSocket = ({ gameId, playerName, setMovingFrom }: UseGameSocketProps) => {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [game, setGame] = useState<GameType | null>(null);
   const [playerColor, setPlayerColor] = useState<PlayerColor | null>(null);
@@ -39,13 +43,27 @@ export const useGameSocket = (gameId?: string, playerName?: string) => {
       });
     });
 
-    newSocket.on('gameError', (errorMsg: string) => {
-      enqueueSnackbar(errorMsg, {
+    newSocket.on('movePending', ({ from }: { from: Position }) => {
+      setMovingFrom?.(from);
+    });
+
+    newSocket.on('gameError', (error: GameError) => {
+      enqueueSnackbar(error.message, {
         variant: 'error',
         preventDuplicate: true,
         anchorOrigin: { vertical: 'bottom', horizontal: 'left' },
       });
-      setGameExists(false);
+
+      const criticalErrorCodes: GameErrorCode[] = [
+        'GAME_NOT_FOUND',
+        'GAME_FULL',
+        'FAILED_TO_CREATE',
+        'FAILED_TO_JOIN'
+      ];
+
+      if (criticalErrorCodes.includes(error.code)) {
+        setGameExists(false);
+      }
     });
 
     return () => {

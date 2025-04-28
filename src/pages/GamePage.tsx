@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Box, CircularProgress } from "@mui/material";
 import { useSnackbar } from 'notistack';
@@ -8,7 +9,7 @@ import Board from '../components/game/Board';
 import ConfettiComponent from '../components/Confetti'
 import EmojiConfetti from '../components/Emoji'
 
-import { Move, GameStatus } from '../types/gameTypes';
+import { Move, GameStatus, Position } from '../types/gameTypes';
 
 import { useGameSocket } from '../hooks/useGameSocket';
 import GameInfo from '../components/game/GameInfo';
@@ -18,6 +19,7 @@ const GamePage = () => {
     const { gameId } = useParams<{ gameId: string }>();
     const playerName = localStorage.getItem('playerName') || '';
     
+    const [movingFrom, setMovingFrom] = useState<Position | null>(null);
     const { enqueueSnackbar } = useSnackbar();
 
     const {
@@ -25,7 +27,9 @@ const GamePage = () => {
         playerColor,
         gameExists,
         socket,
-    } = useGameSocket(gameId, playerName);
+    } = useGameSocket({gameId, playerName, setMovingFrom});
+
+    const [isMovePending, setIsMovePending] = useState(false);
 
     const showSnackbar = (message: string, variant: 'success' | 'error' | 'info') => {
         enqueueSnackbar(message, {
@@ -36,13 +40,20 @@ const GamePage = () => {
     };
 
     const handleMove = (move: Move) => {
-        if (socket && game && playerColor) {
+        if (socket && game && playerColor && !isMovePending) {
+            setIsMovePending(true);
             socket.emit('makeMove', { gameId, move, playerColor });
         } else {
-            showSnackbar(`Can't make a move: ${!socket ? 'no socket' : !game ? 'no game' : 'no color'}`, 'error')
+            showSnackbar(`Can't make a move: ${!socket ? 'no socket' : !game ? 'no game' : !playerColor ? 'no color' : 'move pending'}`, 'error')
         }
     };
-       
+
+    useEffect(() => {
+        if (game) {
+            setIsMovePending(false);
+            setMovingFrom(null);
+        }
+    }, [game]);
 
     if (gameExists == null && playerName) {
         return(
@@ -69,8 +80,13 @@ const GamePage = () => {
                 <GameInfo game={game} gameId={gameId} playerColor={playerColor} />
                 <Board game={game}
                     playerColor={playerColor}
-                    isCurrentPlayer={game.currentPlayer === playerColor && game.status === GameStatus.IN_PROGRESS}
-                    onMove={handleMove} 
+                    isCurrentPlayer={
+                        game.currentPlayer === playerColor && 
+                        game.status === GameStatus.IN_PROGRESS &&
+                        !isMovePending
+                    }
+                    onMove={handleMove}
+                    movingFrom={movingFrom}
                 />
             </div>
         </div>

@@ -1,7 +1,8 @@
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import DoneIcon from '@mui/icons-material/Done';
+import LogoutIcon from '@mui/icons-material/Logout';
 import { Box } from "@mui/material";
 import { useSnackbar } from 'notistack';
 
@@ -20,6 +21,7 @@ const GameInfo: React.FC<GameInfoProps> = ({ game, gameId, playerColor }) => {
 
     const { enqueueSnackbar } = useSnackbar();
     const location = useLocation();
+    const navigate = useNavigate();
 
     const handleCopyClick = () => {
         const url = window.location.origin + location.pathname + location.search;
@@ -67,6 +69,10 @@ const GameInfo: React.FC<GameInfoProps> = ({ game, gameId, playerColor }) => {
                 (<ContentCopyIcon sx={{ fontSize: 16 }}/>)
             }
         Share
+        </button>
+        <button className='leave-button' onClick={() => navigate('/')}>
+            <LogoutIcon fontSize="small" />
+            Leave the game
         </button>
     </div>
   )

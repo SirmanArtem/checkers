@@ -49,3 +49,17 @@ export interface Player {
   id: string;
   name: string;
 } 
+
+export type GameErrorCode =
+  | 'GAME_NOT_FOUND'
+  | 'GAME_FULL'
+  | 'NOT_YOUR_TURN'
+  | 'INVALID_MOVE'
+  | 'FAILED_TO_CREATE'
+  | 'FAILED_TO_JOIN'
+  | 'FAILED_TO_MAKE_MOVE';
+
+export interface GameError {
+  code: GameErrorCode;
+  message: string;
+}

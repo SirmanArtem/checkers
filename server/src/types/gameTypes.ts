@@ -50,3 +50,12 @@ export interface Player {
   name: string;
   socketId: string;
 } 
+
+export type GameErrorCode =
+  | 'GAME_NOT_FOUND'
+  | 'GAME_FULL'
+  | 'NOT_YOUR_TURN'
+  | 'INVALID_MOVE'
+  | 'FAILED_TO_CREATE'
+  | 'FAILED_TO_JOIN'
+  | 'FAILED_TO_MAKE_MOVE';

@@ -5,7 +5,7 @@ import cors from 'cors';
 import { v4 as uuidv4 } from 'uuid';
 import pool from './models/db';
 
-import { Game, PlayerColor, GameStatus, Move } from './types/gameTypes';
+import { Game, PlayerColor, GameStatus, Move, GameErrorCode } from './types/gameTypes';
 import { createGame, getGameById, updateGame, getOpenGames } from './services/gameServices';
 import { applyMove, isGameOver, getWinner, getValidMoves } from './utils/gameUtils';
 
@@ -22,12 +22,15 @@ app.use(cors());
 app.use(express.json());
 
 pool.connect()
-  .then(() => {
-    console.log('✅Connected to database');
-  })
-  .catch((err: Error) => {
-    console.error('🔴Database connection error:', err);
+  .then(() => console.log('✅Connected to database'))
+  .catch((err: Error) => console.error('🔴Database connection error:', err));
+
+const sendGameError = (socket: any, code: GameErrorCode, message?: string) => {
+  socket.emit('gameError', {
+    code,
+    message: message || code.replace(/_/g, ' ').toLowerCase()
   });
+};
 
 const playerSockets: Record<string, string> = {}; // playerId -> socketId
 const socketPlayers: Record<string, string> = {}; // socketId -> playerId
@@ -37,18 +40,17 @@ app.get('/game/:id', async (req, res) => {
     const game = await getGameById(req.params.id);
     // await new Promise(resolve => setTimeout(resolve, 2000));
     if (game) {
-        res.json(game);
+      res.json(game);
     } else {
-        res.status(404).send({ message: "Game not found" });
+      res.status(404).send({ message: "Game not found" });
     }
-  }
-  catch (eror) {
+  } catch (error) {
     res.status(500).send({ message: "Something went wrong" });
   }
 });
 
 io.on('connection', (socket) => {
-  console.log('User connected:', socket.id);
+  console.log('Користувача підключено:', socket.id);
   
   socket.on('createGame', async ({ playerName }) => {
     try {
@@ -65,20 +67,20 @@ io.on('connection', (socket) => {
       socket.emit('gameCreated', { gameId: game.id });
 
     } catch (error) {
-      console.error('Error creating game:', error);
-      socket.emit('gameError', 'Failed to create game');
+      console.error('Помилка створення гри:', error);
+      sendGameError(socket, 'FAILED_TO_CREATE', 'Failed to create game');
     }
   });
   
   socket.on('joinGame', async ({ gameId, playerName }) => {
     try {
-      console.log(`Player ${playerName} trying to join game ${gameId}`);
+      console.log(`Гравець ${playerName} намагається приєднатися до гри ${gameId}`);
       
       const game = await getGameById(gameId);
       
       if (!game) {
-        console.log(`Game ${gameId} not found`);
-        socket.emit('gameError', 'Game not found');
+        console.log(`Гру ${gameId} не знайдено`);
+        sendGameError(socket, 'GAME_NOT_FOUND', `Game ${gameId} not found`);
         return;
       }
       
@@ -91,11 +93,11 @@ io.on('connection', (socket) => {
       if (isWhitePlayer) {
         playerId = game.playerWhiteId || uuidv4();
         playerColor = PlayerColor.WHITE;
-        console.log(`Player ${playerName} reconnected as WHITE in game ${gameId}`);
+        console.log(`Гравеця ${playerName} перепідключено як WHITE до гри ${gameId}`);
       } else if (isBlackPlayer) {
         playerId = game.playerBlackId || uuidv4();
         playerColor = PlayerColor.BLACK;
-        console.log(`Player ${playerName} reconnected as BLACK in game ${gameId}`);
+        console.log(`Гравеця ${playerName} перепідключено як BLACK до гри ${gameId}`);
       } else {
         playerId = uuidv4();
         
@@ -103,18 +105,18 @@ io.on('connection', (socket) => {
           game.playerWhiteId = playerId;
           game.playerWhiteName = playerName;
           playerColor = PlayerColor.WHITE;
-          console.log(`⚪️Player ${playerName} joined as WHITE in game ${gameId}`);
+          console.log(`⚪️Гравець ${playerName} приєднався як WHITE до гри ${gameId}`);
         } else if (!game.playerBlackId) {
           game.playerBlackId = playerId;
           game.playerBlackName = playerName;
           playerColor = PlayerColor.BLACK;
-          console.log(`⚫️Player ${playerName} joined as BLACK in game ${gameId}`);
+          console.log(`⚫️Гравець ${playerName} приєднався як BLACK до гри${gameId}`);
           
           game.status = GameStatus.IN_PROGRESS;
-          console.log(`Game ${gameId} is now IN_PROGRESS with players ${game.playerWhiteName} and ${game.playerBlackName}`);
+          console.log(`Гра ${gameId} зараз у стані IN_PROGRESS з гравцями ${game.playerWhiteName} та ${game.playerBlackName}`);
         } else {
-          console.log(`Game ${gameId} is full, player ${playerName} cannot join`);
-          socket.emit('gameError', 'Game is full');
+          console.log(`Гра ${gameId} переповнена, гравець ${playerName} не може приєднатися`);
+          sendGameError(socket, 'GAME_FULL', `Game ${gameId} is full`);
           return;
         }
       }
@@ -130,38 +132,39 @@ io.on('connection', (socket) => {
       
       socket.emit('gameJoined', { game, playerColor });
       io.to(game.id).emit('userJoined', playerName);
-      console.log(`Sent gameJoined event to player ${playerName}`);
+      console.log(`Надіслано подію gameJoined усім гравцям ${playerName}`);
       
       io.to(game.id).emit('gameUpdate', game);
-      console.log(`Sent gameUpdate event to all players in game ${gameId}`);
+      console.log(`Надіслано подію gameUpdate усім гравцям ${gameId}`);
             
     } catch (error) {
-      console.error('Error joining game:', error);
-      socket.emit('gameError', 'Failed to join game');
+      console.error('Помилка приєднання до гри:', error);
+      sendGameError(socket, 'FAILED_TO_JOIN', 'Failed to join game');
     }
   });
   
   socket.on('makeMove', async ({ gameId, move, playerColor }) => {
     try {
-      console.log('Отримано запит на хід:', { gameId, move, playerColor });
-      
+      console.log('Отримано запит на переміщення:', { gameId, move, playerColor });
       const game = await getGameById(gameId);
+      io.to(gameId).emit('movePending', { from: move.from });
+      await new Promise(resolve => setTimeout(resolve, 2000));
       
       if (!game) {
         console.log('Гра не знайдена:', gameId);
-        socket.emit('gameError', 'Game not found');
+        sendGameError(socket, 'GAME_NOT_FOUND', `Game ${gameId} not found`);
         return;
       }
       
       if (game.status !== GameStatus.IN_PROGRESS) {
         console.log('Гра не в процесі:', game.status);
-        socket.emit('gameError', 'Game is not in progress');
+        sendGameError(socket, 'FAILED_TO_MAKE_MOVE', 'Game is not in progress');
         return;
       }
       
       if (game.currentPlayer !== playerColor) {
         console.log('Не ваш хід. Поточний гравець:', game.currentPlayer, 'Ваш колір:', playerColor);
-        socket.emit('gameError', 'Not your turn');
+        sendGameError(socket, 'NOT_YOUR_TURN', 'Not your turn');
         return;
       }
       
@@ -175,7 +178,7 @@ io.on('connection', (socket) => {
       
       if (!isValidMove) {
         console.log('Невалідний хід');
-        socket.emit('gameError', 'Invalid move');
+        sendGameError(socket, 'INVALID_MOVE');
         return;
       }
       
@@ -190,8 +193,7 @@ io.on('connection', (socket) => {
       
       if (isGameOver(game.board)) {
         game.status = GameStatus.FINISHED;
-        const winner = getWinner(game.board);
-        game.winner = winner ? winner : undefined;
+        game.winner = getWinner(game.board) ?? undefined;
         console.log('Гра закінчилась. Переможець:', game.winner);
       }
       
@@ -202,7 +204,7 @@ io.on('connection', (socket) => {
       
     } catch (error) {
       console.error('Error making move:', error);
-      socket.emit('gameError', 'Failed to make move');
+      sendGameError(socket, 'FAILED_TO_MAKE_MOVE', 'Failed to make move');
     }
   });
   
@@ -215,7 +217,6 @@ io.on('connection', (socket) => {
       
       const game = await getGameById(gameId);
       if (!game) return;
-      
       if (game.status !== GameStatus.IN_PROGRESS) return;
       
       if (game.playerWhiteId === playerId) {

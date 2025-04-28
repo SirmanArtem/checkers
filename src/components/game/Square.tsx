@@ -1,5 +1,6 @@
 import React from 'react';
 import { PieceType, Position } from '../../types/gameTypes';
+import { CircularProgress } from '@mui/material';
 
 interface SquareProps {
   position: Position;
@@ -7,9 +8,10 @@ interface SquareProps {
   isSelected: boolean;
   isHighlighted: boolean;
   onClick: () => void;
+  showSpinner?: boolean;
 }
 
-const Square: React.FC<SquareProps> = ({ position, piece, isSelected, isHighlighted, onClick }) => {
+const Square: React.FC<SquareProps> = ({ position, piece, isSelected, isHighlighted, onClick, showSpinner }) => {
   const { row, col } = position;
   const isDark = (row + col) % 2 === 1;
   
@@ -38,6 +40,11 @@ const Square: React.FC<SquareProps> = ({ position, piece, isSelected, isHighligh
   return (
     <div className={squareClasses} onClick={onClick}>
       {renderPiece()}
+      {showSpinner && (
+        <div className="spinner-overlay">
+          <CircularProgress size={24} thickness={5} color="warning" />
+        </div>
+      )}
     </div>
   );
 };
