@@ -67,7 +67,7 @@ const Login: React.FC<LoginProps> = ({ id }) => {
           <Box className="name-form__logo" 
             component="img"
             alt="name-form-bg"
-            src="/logo.png"
+            src="/logo.webp"
           />
           <Box className="name-form__content">
             <Typography className='strassburg-font' sx={{ fontSize: 100, lineHeight: "40px", alignSelf: "center" }}>

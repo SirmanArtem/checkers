@@ -14,7 +14,7 @@ const NotFound = () => {
                 minHeight: '100vh',
             }}
         >
-            <img src="/404.png" className='not-found__img'/>
+            <img src="/404.webp" className='not-found__img'/>
             <Typography variant="h6" className='strassburg-font' sx={{fontSize: 100, lineHeight: '100px'}}>
                 Game not found
             </Typography>
