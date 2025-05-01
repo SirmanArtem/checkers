@@ -148,8 +148,8 @@ io.on('connection', (socket) => {
   socket.on('makeMove', async ({ gameId, move, playerColor }) => {
     try {
       console.log('Отримано запит на переміщення:', { gameId, move, playerColor });
-      const game = await getGameById(gameId);
       io.to(gameId).emit('movePending', { from: move.from });
+      const game = await getGameById(gameId);
       
       if (!game) {
         console.log('Гра не знайдена:', gameId);
