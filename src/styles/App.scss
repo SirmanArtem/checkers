@@ -97,8 +97,14 @@
   position: relative;
   width: fit-content;
   display: inline-block;
-  border: 20px solid #9d8053;
+  border: 20px solid #aa5d25;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transition: border-color .3s ease;
+
+  &.active {
+    transition: border-color .6s ease;
+    border-color: #778b13;
+  }
 }
 
 .board-row {

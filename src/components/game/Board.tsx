@@ -5,6 +5,7 @@ import Square from './Square';
 import { Game, PlayerColor, Position, Move, GameStatus } from '../../types/gameTypes';
 import { BOARD_SIZE } from '../../utils/gameUtils';
 import { handleSquareClick, calculateForcedPositions, getPieceClass } from '../../utils/boardUtils';
+import { useSound } from '../../hooks/useSound';
 
 interface BoardProps {
     game: Game;
@@ -22,12 +23,26 @@ const Board: React.FC<BoardProps> = ({ game, playerColor, isCurrentPlayer, movin
   const { board, status } = game;
 
   const { enqueueSnackbar } = useSnackbar();
+  const { playLoseSound, playWinSound } = useSound();
 
   useEffect(() => {
     setSelectedPosition(null);
     setValidMoves([]);
     setForcedPositions(calculateForcedPositions(board, playerColor, isCurrentPlayer));
   }, [board]);
+
+  useEffect(() => {
+    if (game.status === GameStatus.FINISHED && game.winner) {
+      const isWinner = game.winner === playerColor;
+      if (isWinner) {
+        playWinSound();
+        console.log('win')
+      } else {
+        playLoseSound();
+        console.log('lose')
+      }
+    }
+  }, [game.status]);
 
   const isValidMove = (position: Position): boolean => {
     return validMoves.some(move => move.to.row === position.row && move.to.col === position.col);
@@ -84,7 +99,7 @@ const Board: React.FC<BoardProps> = ({ game, playerColor, isCurrentPlayer, movin
   };
 
   return (
-    <div className="board">
+    <div className={`board ${isCurrentPlayer ? "active" : ""}`}>
       {renderBoard()}
 
       <div className={`game-over ${status === GameStatus.FINISHED && 'active'}`}>

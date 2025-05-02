@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { useSnackbar } from 'notistack';
 import { Game as GameType, PlayerColor, GameErrorCode, GameError, Position } from '../types/gameTypes';
+import { useSound } from './useSound';
 
 interface UseGameSocketProps {
   gameId?: string;
@@ -16,6 +17,7 @@ export const useGameSocket = ({ gameId, playerName, setMovingFrom }: UseGameSock
   const [playerColor, setPlayerColor] = useState<PlayerColor | null>(null);
   const [gameExists, setGameExists] = useState<boolean | null>(null);
   const { enqueueSnackbar } = useSnackbar();
+  const { playMoveSound } = useSound();
 
   useEffect(() => {
     const newSocket = io(import.meta.env.VITE_SOCKET_SERVER_URL);
@@ -47,6 +49,7 @@ export const useGameSocket = ({ gameId, playerName, setMovingFrom }: UseGameSock
 
     newSocket.on('movePending', ({ from }: { from: Position }) => {
       setMovingFrom?.(from);
+      playMoveSound()
     });
 
     newSocket.on('gameError', (error: GameError) => {
